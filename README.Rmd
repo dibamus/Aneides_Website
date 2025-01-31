@@ -2,7 +2,7 @@
 title: "Aneides Spot Size Across California"
 author: "Meg Scudder & Isaac Krone"
 date: "2025-01-30"
-output: github_document
+output: html_document
 always_allow_html: yes
 ---
 ```{r, setup, echo=FALSE}
