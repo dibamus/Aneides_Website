@@ -1,0 +1,53 @@
+---
+title: "Aneides Spot Size Across California"
+author: "Meg Scudder & Isaac Krone"
+date: "2025-01-30"
+output: github_document
+always_allow_html: yes
+---
+```{r, setup, echo=FALSE}
+knitr::opts_knit$set(root.dir = "C:/Users/User1/Syncthing-Docs/Aneides Project")
+```
+
+```{r map, echo=FALSE, message=FALSE, warning = FALSE}
+#setwd("C:/Users/User1/Syncthing-Docs/Aneides Project")
+
+library('leaflet')
+library('tidyverse')
+library('terra')
+wmap_ca <- readRDS(file = "Aneides spots heatmap of california.rda")
+
+Aneides <- readRDS("CombinedData.rds")
+Aneides <-filter(Aneides, age=="Adult", is.na(Exclude))
+#Aneides <- Aneides[-which(is.nan(Aneides$mean1000)),]
+
+Aneides$combinedSpots <- Aneides$Small.large.spots
+Aneides$combinedSpots[which(Aneides$Spots. =="No")] <- "Small"
+Aneides$binSpots <- as.numeric(Aneides$combinedSpots=="Large")
+library('leaflet')
+
+#ok, for ease of plotting we're going to add a color column to our Aneides data
+
+Aneides$mapcolor <- "#dddd44"
+Aneides$mapcolor[which(Aneides$combinedSpots=="Small")] <- "#774455"
+pal <- colorNumeric(c("#774455","#dddd44"), values(wmap_ca$custom),
+                    na.color = "transparent")
+
+#Here's what's happeining
+# Dataset %>% leaflet function %>% 
+# add a layer of map tiles from ESRI, an online database %>%
+# add our raster layer %>%
+# add circles
+m <- Aneides %>% leaflet() %>%
+  addProviderTiles(providers$Esri.WorldTopoMap) %>% # using ESRI World Topo for the background map tiles
+  addRasterImage(wmap_ca, 
+                 colors = pal,
+                 opacity = 0.6) %>%
+  addCircleMarkers(label = Aneides$...1,
+                   popup = paste0(#Aneides$place_county_name, " County","<br>",
+                                 "<a href=",Aneides$url,">",
+                                 Aneides$place_county_name, " County","</a>"),
+                   color = Aneides$mapcolor)
+m
+```
+
